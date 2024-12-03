@@ -21,6 +21,7 @@
 	limbs_icon_f = 'icons/roguetown/mob/bodies/f/fm.dmi'
 	dam_icon = 'icons/roguetown/mob/bodies/dam/dam_male.dmi'
 	dam_icon_f = 'icons/roguetown/mob/bodies/dam/dam_female.dmi'
+	var/datum/action/size_normalize/small_action = new /datum/action/size_normalize()
 
 
 	soundpack_m = /datum/voicepack/male
@@ -129,6 +130,7 @@
 /datum/species/anthromacro/on_species_gain(mob/living/carbon/C, datum/species/old_species)
 	..()
 	RegisterSignal(C, COMSIG_MOB_SAY, PROC_REF(handle_speech))
+	small_action.Grant(C)
 
 /datum/species/anthromacro/on_species_loss(mob/living/carbon/C)
 	. = ..()
@@ -182,3 +184,26 @@
 	returned["mcolor3"] = third_color
 	return returned
 
+/datum/action/size_normalize
+	name = "Toggle Giant Sprite"
+	desc = ""
+	icon_icon = 'icons/mob/actions/actions_xeno.dmi'
+	button_icon_state = "smallqueen"
+	background_icon_state = "bg_alien"
+	var/small = FALSE
+	var/small_icon
+	var/small_icon_state
+
+/datum/action/size_normalize/Trigger()
+	..()
+	var/mob/living/carbon/C = owner
+	if(!small)
+		var/image/I = image(icon = 'icons/roguetown/items/feline.dmi', loc = owner)
+		I.override = TRUE
+		I.pixel_x -= owner.pixel_x
+		I.pixel_y -= owner.pixel_y
+		owner.add_alt_appearance(/datum/atom_hud/alternate_appearance/basic, "smallsprite", I, AA_TARGET_SEE_APPEARANCE | AA_MATCH_TARGET_OVERLAYS)
+		small = TRUE
+	else
+		owner.remove_alt_appearance("smallsprite")
+		small = FALSE
